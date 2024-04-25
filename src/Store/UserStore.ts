@@ -12,7 +12,7 @@ class UserStore {
       userData: observable,
       fetchData: action,
       setData: action,
-      clearData :action
+      clearData: action
     });
   }
 
@@ -26,8 +26,8 @@ class UserStore {
     try {
       const response = await instance.get(user_details_url)
       const responseData = response.data
-      this.setData(responseData.data.user_email,responseData.data.user_name)
-      pageStore.currentState = Warehouse
+      this.setData(responseData.data.user_email, responseData.data.user_name)
+      pageStore.setState(Warehouse)
     } catch (error: any) {
       if (error.response && error.response.status === 403) {
         return {
@@ -54,11 +54,11 @@ class UserStore {
     }
   }
 
-  clearData=()=>{
+  clearData = () => {
     this.userData = null
   }
 
-  
+
 
 
 }
