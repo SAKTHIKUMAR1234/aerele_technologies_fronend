@@ -19,6 +19,13 @@ export const warehouse_update_url : string = base_url + '/api/loc/update'
 
 export const product_data_fecth_url : string = base_url + '/api/product'
 
+export const product_creation_url : string = base_url + '/api/product/add'
+
+export const product_update_url : string = base_url + '/api/product/edit'
+
+export const movement_fetch_url : string = base_url + '/api/product/movements'
+
+export const product_delete_url : string = base_url + '/api/product/delete'
 
 export const instance = axios.create({
   withCredentials: true

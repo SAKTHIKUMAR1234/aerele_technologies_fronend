@@ -20,13 +20,12 @@ class SignupStore {
   }
   async makeSignup() {
     try {
-      const response = await instance.post(signup_url, this.signupData);
-      console.log(response);
+      await instance.post(signup_url, this.signupData);
       return {
         status: true,
         data: {
-          title: 'Login Success',
-          text: 'User Logged-In Successfully',
+          title: 'Signup Success',
+          text: 'User Signned-Up Successfully',
           icon: 'success',
           confirmButtonText: 'OK'
         }

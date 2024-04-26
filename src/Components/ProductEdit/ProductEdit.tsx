@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import warehouseStore from '../../Store/WarehouseStore';
+import productStore from '../../Store/ProductStore';
+import Swal from 'sweetalert2';
+import pageStore from '../../Store/PageStore';
+import Products from '../Products/Products';
 
 interface FormData {
+  id : number,
   name: string;
   price: number;
   quantity: number;
@@ -11,20 +16,32 @@ interface FormData {
 interface ProductEditProps {
   showModal: boolean;
   onCloseModal: () => void;
+  currentValue: any
 }
 
-const ProductEdit: React.FC<ProductEditProps> = ({ showModal, onCloseModal }) => {
+const ProductEdit: React.FC<ProductEditProps> = ({ showModal, onCloseModal, currentValue }) => {
   const [formData, setFormData] = useState<FormData>({
+    id : 0,
     name: '',
     price: 0,
     quantity: 0,
     location: '',
   });
-
+  useEffect(() => {
+    setFormData(prevState => ({
+      ...prevState,
+      id : currentValue.id,
+      name: currentValue.product_name,
+      price: currentValue.product_price,
+      quantity: currentValue.product_quantity,
+      location: ''
+    }));
+  }, [currentValue])
   const [errors, setErrors] = useState({
     name: '',
     price: '',
     quantity: '',
+    location: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -33,7 +50,7 @@ const ProductEdit: React.FC<ProductEditProps> = ({ showModal, onCloseModal }) =>
     setErrors({ ...errors, [name]: '' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = { ...errors };
     let valid = true;
@@ -50,12 +67,24 @@ const ProductEdit: React.FC<ProductEditProps> = ({ showModal, onCloseModal }) =>
       newErrors.quantity = 'Enter a valid quantity';
       valid = false;
     }
+    if (formData.location === '') {
+      newErrors.location = 'Select a warehouse'
+      valid = false
+    }
     setErrors(newErrors);
     if (!valid) {
       return;
     }
-    console.log('Form submitted:', formData);
-    setFormData({ name: '', price: 0, quantity: 0, location: '' });
+    const response : any  = await productStore.updateProduct(formData.id , {
+      name : formData.name,
+      price : formData.price,
+      quantity : formData.quantity,
+      location : formData.location
+    })
+    Swal.fire(response.data)
+    await productStore.fetchProducts('')
+    pageStore.setState(Products)
+    setFormData({ id: 0, name: '', price: 0, quantity: 0, location: '' });
     onCloseModal();
   };
   return (
@@ -103,10 +132,11 @@ const ProductEdit: React.FC<ProductEditProps> = ({ showModal, onCloseModal }) =>
               </div>
               <div>
                 <label htmlFor="location">Location:</label>
+                {errors.location && <p className="error">{errors.location}</p>}
                 <select id="location" name="location" value={formData.location} onChange={handleInputChange}>
                   <option value="">Select location</option>
                   {warehouseStore.locations.map(location => (
-                    <option key={location.id} value={location.name}>{location.name}</option>
+                    <option key={location.id} value={location.id}>{location.name}</option>
                   ))}
                 </select>
               </div>

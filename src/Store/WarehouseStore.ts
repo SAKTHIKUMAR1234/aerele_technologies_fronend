@@ -72,7 +72,7 @@ class WarehouseStore {
           status: false,
           data: {
             title: 'Error',
-            text: 'An error occurred during signup',
+            text: 'An error occurred',
             icon: 'error',
             confirmButtonText: 'OK'
           }

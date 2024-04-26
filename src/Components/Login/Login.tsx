@@ -63,7 +63,6 @@ const Login: React.FC = observer(() => {
       if (response.status) {
         Swal.fire(response.data)
         await userStore.fetchData()
-        console.log(userStore.userData)
         pageStore.setState(Products)
       }
       else{

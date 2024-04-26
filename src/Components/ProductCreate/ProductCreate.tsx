@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import warehouseStore from '../../Store/WarehouseStore';
+import productStore from '../../Store/ProductStore';
+import Swal from 'sweetalert2';
+import pageStore from '../../Store/PageStore';
+import Products from '../Products/Products';
 
 interface FormData {
   name: string;
@@ -25,6 +29,7 @@ const ProductCreate: React.FC<ProductCreateProps> = ({ showModal, onCloseModal }
     name: '',
     price: '',
     quantity: '',
+    location : ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -33,7 +38,7 @@ const ProductCreate: React.FC<ProductCreateProps> = ({ showModal, onCloseModal }
     setErrors({ ...errors, [name]: '' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = { ...errors };
     let valid = true;
@@ -52,14 +57,23 @@ const ProductCreate: React.FC<ProductCreateProps> = ({ showModal, onCloseModal }
       newErrors.quantity = 'Enter a valid quantity';
       valid = false;
     }
+
+    if (formData.location === ''){
+      newErrors.location = 'Please Select a Location';
+      valid = false
+    }
     setErrors(newErrors);
 
     if (!valid) {
       return;
     }
-    console.log('Form submitted:', formData);
+    const result :any  = await productStore.createProducts(formData)
+    Swal.fire(result.data)
     setFormData({ name: '', price: 0, quantity: 0, location: '' });
+    await productStore.fetchProducts('')
+    pageStore.setState(Products)
     onCloseModal();
+    
   };
 
   return (
@@ -107,10 +121,11 @@ const ProductCreate: React.FC<ProductCreateProps> = ({ showModal, onCloseModal }
               </div>
               <div>
                 <label htmlFor="location">Location:</label>
+                {errors.location && <p className="error">{errors.location}</p>}
                 <select id="location" name="location" value={formData.location} onChange={handleInputChange}>
                   <option value="">Select location</option>
                   {warehouseStore.locations.map(location => (
-                    <option key={location.id} value={location.name}>{location.name}</option>
+                    <option key={location.id} value={location.id}>{location.name}</option>
                   ))}
                 </select>
               </div>
